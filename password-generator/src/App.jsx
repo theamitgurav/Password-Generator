@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 // import './App.css'
@@ -9,12 +9,14 @@ function App() {
   const [characters, setCharacters ] = useState(false)
   const [password, setPassword] = useState("")
 
+  const passRef = useRef(null)
+
   const passGenerator = useCallback(()=>{
     const numberss = "0123456789"
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    const characterss = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     const specialChars = "!@#$%^&*()_+"
 
-    let charSet = characters;
+    let charSet = characterss;
 
     if(numbers) charSet+=numberss;
     if(characters) charSet += specialChars
@@ -25,12 +27,18 @@ function App() {
       const index = Math.floor(Math.random()*charSet.length+1)
       Password += charSet.charAt(index)
     }
+    console.log("pass regenerated");
+    
     setPassword(Password)
   },[length, numbers, characters, setPassword])
 
   useEffect(()=>{passGenerator()},[numbers,characters,length,passGenerator])
 
-
+  const copyPassword=useCallback(()=>{
+    passRef.current?.select()
+    passRef.current?.setSelectionRange(0,20)
+    window.navigator.clipboard.writeText(password)
+  },[password])
 
 
   return (
@@ -41,8 +49,11 @@ function App() {
         <div className='flex mx-10'>
           <input className='w-full py-3 px-1 outline-none text-black text-xl'
           type="text"
-          value={password} />
+          value={password}
+          readOnly 
+          ref={passRef}/>
           <button className='bg-orange-600 text-white py-3 px-5 rounded-e-xl text-2xl'
+          onClick={copyPassword}
           >copy</button>
         </div>
         <div className='flex flex-wrap justify-center gap-x-4 py-4 '>
